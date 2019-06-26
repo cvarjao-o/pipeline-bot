@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "moduleResolution": "Node",
+    "module": "es6",
+    "allowJs": false,
+    "removeComments": true,
+    "sourceMap": true,
+    "alwaysStrict": true,
+    "outDir": "build"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+      "node_modules",
+      "**/*.spec.ts"
+  ]
+}
