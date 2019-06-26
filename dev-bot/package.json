@@ -1,0 +1,50 @@
+{
+  "name": "dev-bot",
+  "version": "1.0.0",
+  "description": "Build and Deployment helper",
+  "author": "Clecio Varjao <clecio.varjao@gov.bc.ca>",
+  "license": "ISC",
+  "repository": "https://github.com/cvarjao/pipeline-bot.git",
+  "homepage": "https://github.com/cvarjao/pipeline-bot",
+  "bugs": "https://github.com/cvarjao/pipeline-bot/issues",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "dev": "nodemon",
+    "start": "probot run ./index.js",
+    "lint": "standard --fix",
+    "test": "jest && standard",
+    "test:watch": "jest --watch --notify --notifyMode=change --coverage"
+  },
+  "dependencies": {
+    "probot": "^7.0.0",
+    "shelljs": "^0.8.2"
+  },
+  "devDependencies": {
+    "jest": "^22.4.3",
+    "nodemon": "^1.17.2",
+    "smee-client": "^1.0.2",
+    "standard": "^10.0.3"
+  },
+  "engines": {
+    "node": ">= 8.3.0"
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "nodemonConfig": {
+    "exec": "npm start",
+    "watch": [
+      ".env",
+      "."
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "dev-bot2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node ./lib/server.ts",
+    "start": "nodemon ./dist/server.js",
+    "prod": "npm run build && npm run start"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@octokit/rest": "^15.15.1",
+    "@octokit/webhooks": "^5.0.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.3.0",
+    "shelljs": "^0.8.2"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "smee-client": "^1.0.2"
+  }
+}
