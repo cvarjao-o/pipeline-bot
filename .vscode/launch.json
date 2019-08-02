@@ -1,0 +1,63 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "jest",
+      "cwd": "${workspaceFolder}/gateway/github-gateway",
+      "program": "${workspaceFolder}/gateway/github-gateway/node_modules/jest/bin/jest.js",
+      "args": ["-i"],
+      "env": {
+        //"LOG_LEVEL": "debug"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "jest (single)",
+      "cwd": "${workspaceFolder}/gateway/github-gateway",
+      "program": "${workspaceFolder}/gateway/github-gateway/node_modules/jest/bin/jest.js",
+      "args": ["-i", "--testNamePattern=Toposort"],
+      "env": {
+        //"LOG_LEVEL": "debug"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "runtimeVersion": "10.15.2",
+      "name": "spawnSync.test.js",
+      "cwd": "${workspaceFolder}/gateway/github/github-gateway",
+      "program": "${workspaceFolder}/gateway/github/github-gateway/test/spawnSync.test.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "cwd": "${workspaceFolder}/gateway/github-gateway",
+      "program": "${workspaceFolder}/gateway/github-gateway/node_modules/probot/bin/probot.js",
+      "args": [
+        "run",
+        "./lib/src/index.js"
+      ],
+      //"console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch2",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/gateway/github-gateway",
+      "program": "${workspaceFolder}/gateway/github-gateway/node_modules/probot/bin/probot-run.js",
+      "args": [
+        "./lib/src/index.js"
+      ]
+    }
+  ]
+}

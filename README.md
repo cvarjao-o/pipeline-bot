@@ -16,8 +16,25 @@ nvm use --delete-prefix v8.12.0
 
 
 pipeline:
--[trigger]-> gateway -[trigger]->  agent -[event]-> 
+-[trigger]-> gateway -[event]-> controller -[command]>  agent -[command]-> worker
 
+events:
+- github:push
+- github:pull_request:synchronize
+- github:pull_request:opened
+- github:pull_request:reopened
+- github:pull_request:closed
+- github:issue_comment:created
+- pipeline:started
+- job:started
+- job:completed
+- pipeline:completed
+
+command:
+start:<pipeline>
+stop:<pipeline>
+pause:<pipeline>
+resume:<pipeline>
 
 
 Project -> Build -> Job -> Task

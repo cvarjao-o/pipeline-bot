@@ -1,0 +1,23 @@
+import {spawnSync} from 'child_process';
+import {createWriteStream, openSync, writeSync, closeSync} from 'fs';
+
+const item = {
+  name: 'build',
+  uses: 'docker://docker-registry.default.svc:5000/csnr-devops-lab-tools/ose-cli:v3.11',
+  runs: ["sh", "-c", "echo 'Hello World'"],
+  check_run_id: 123456
+};
+const dockerImageUri = item.uses.substring(9);
+const args:string[] = ['run', `${item.name}`, `--image=${dockerImageUri}`, '--command=true', '-it', '--restart=Never', '--rm=true', '-h', '--']
+args.push(...item.runs)
+let logPath = `/tmp/check_run_${item.check_run_id}.log.txt`
+const log = openSync(logPath, 'a');
+
+//let log = createWriteStream(logPath, {encoding: 'utf-8'});
+
+writeSync(log, `# oc ${args.join(" ")}\n`, null, 'utf-8');
+
+const result = spawnSync('oc', args, {encoding: 'utf-8', stdio: [null, log, log]})
+closeSync(log);
+
+console.dir(result)

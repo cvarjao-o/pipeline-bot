@@ -1,0 +1,81 @@
+{
+  "workflow": {
+    "CI": {
+      "description": "CI",
+      "on": ["pull_request:opened","pull_request:reopened", "pull_request:synchronize"],
+      "resolves": ["build"]
+    },
+    "CD": {
+      "description": "CD",
+      "on": ["pull_request:opened","pull_request:reopened", "pull_request:synchronize"],
+      "resolves": ["deploy-to-prod"]
+    },
+    "notify-action-completion": {
+      "on": "check_run:completed",
+      "resolves": ["notify-completion"]
+    },
+    "notify-workflow-completion": {
+      "on": "check_suite:completed",
+      "resolves": ["notify-completion"]
+    },
+    "cleanup-pr": {
+      "description": "CD",
+      "on": "pull_request:closed",
+      "resolves": ["cleanup"]
+    },
+    "cleanup-branch": {
+      "description": "CD",
+      "on": "deleted",
+      "resolves": ["cleanup"]
+    }
+  },
+  "actions":{
+    "build": {
+      "description": "Build",
+      "uses": "docker://registry.access.redhat.com/openshift3/ose-cli:v3.11.129-1",
+      "runs": ["sh", "-c", "echo 'Building...'"]
+    },
+    "deploy2dev": {
+      "description": "Deploy to Dev",
+      "needs": ["build"],
+      "when": {
+        "is_master":{
+          "uses": "openshift://csnr-devops-lab-tools/ose-cli:v3.11",
+          "runs": ["sh", "-c", "oc whoami && oc version"]
+        }
+      },
+      "uses": "openshift://csnr-devops-lab-tools/ose-cli:v3.11",
+      "runs": ["sh", "-c", "oc whoami && oc version"]
+    },
+    "deploy2test": {
+      "description": "Deploy to Test",
+      "needs": ["deploy2dev"],
+      "action": {
+        "approve": {
+          "approvers":["collaborator"],
+          "conclusion": "success",
+          "uses": "openshift:///ose-cli:v3.11",
+          "runs": ["sh", "-c", "oc whoami && oc version"]
+        }
+      }
+    },
+    "approve-deployment-to-prod": {
+      "description": "Approve Deployment to PROD",
+      "needs": ["deploy2test"],
+      "action": {
+        "approve": {
+          "label": "Approve",
+          "description": "",
+          "approvers":["collaborator"],
+          "conclusion": "success"
+        }
+      }
+    },
+    "deploy-to-prod": {
+      "description": "Deploy to Prod",
+      "needs": ["approve-deployment-to-prod"],
+      "uses": "docker://docker-registry.default.svc:5000/csnr-devops-lab-tools/ose-cli:v3.11",
+      "runs": ["sh", "-c", "oc whoami && oc version"]
+    }
+  }
+}
