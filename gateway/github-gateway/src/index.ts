@@ -213,16 +213,6 @@ export = (app: Application) => {
 
   app.on(['pull_request.opened', 'pull_request.reopened', 'pull_request.synchronize'], async context => {
     app.log(`${context.event}.${context.payload.action} - ${context.payload.pull_request.base.sha} (${context.payload.pull_request.head.sha})`);
-    //app.log(context.payload.pull_request.base.sha)
-    //app.log(context.payload.pull_request.head.sha)
-    //app.log(context);
-    /* if (`${context.event}.${context.payload.action}` == "pull_request.reopened"){
-      await context.github.checks.createSuite({
-        owner: context.payload.pull_request.base.repo.owner.login,
-        repo: context.payload.pull_request.base.repo.name,
-        head_sha: context.payload.pull_request.head.sha
-      })
-    } */
     const workflow = await getWorkflow(context, context.payload.pull_request.head.repo, context.payload.pull_request.head.sha);
     const actions : string[] =  util.listActions(workflow, context);
     app.log("check_runs => ", actions)

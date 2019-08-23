@@ -73,16 +73,6 @@ export function getChecksForSuite(context: Context, repository:any, check_suite_
 
 export function getWorkflow(context: Context, repo:any, head_sha:string): Promise<any> {
   return require('../test/fixtures/main.workflow.json');
-  /* 
-  return context.github.repos.getContents({
-    owner: repo.owner.login,
-    repo: repo.name,
-    path: '.github/main.workflow.json',
-    ref: head_sha})
-    .then(async (response: Response<any>)=>{
-      const workflow =  JSON.parse(Buffer.from(response.data.content, response.data.encoding).toString('utf-8'))
-      return workflow;
-    }); */
 }
 
 /*
