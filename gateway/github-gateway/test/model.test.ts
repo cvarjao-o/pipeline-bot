@@ -17,5 +17,21 @@ describe('model', () => {
       })
     });
     done()
-  })
+  });
+  test('multiple workflows', async (done) => {
+    const json:any = require('../test/fixtures/main.workflows-v2.json');
+    //console.dir(json);
+    expect(json).toBeInstanceOf(Array);
+    expect(json.length).toBe(1);
+
+    const workflows = model.Factory.asWorkflows(json);
+    expect(workflows).toBeInstanceOf(model.Workflows)
+    expect(workflows.length).toBe(1);
+    for (let workflow of workflows){
+      expect(workflow.jobs).toBeInstanceOf(model.Jobs);
+      expect(workflow.jobs.size).toBe(2);
+    }
+
+    done()
+  });
 })

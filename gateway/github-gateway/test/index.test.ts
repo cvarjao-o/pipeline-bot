@@ -21,10 +21,10 @@ const mockSpawn = require('mock-spawn');
 
 
 function expected_checkruns(workflow:any, context:any) : Map<string,any> {
-  const expected_actions = util.listActions(workflowFile, (context as unknown) as Context)
+  const expected_actions = util.listJobs(workflowFile, (context as unknown) as Context)
   const check_runs:Map<string,any> = new Map();
   for (let expected_action of expected_actions){
-    check_runs.set(expected_action, null);
+    //check_runs.set(expected_action, null);
   }
   return check_runs
 }
@@ -35,7 +35,7 @@ describe('My Probot app', () => {
   let getWorkflowMock: any
 
   beforeEach(() => {
-    getWorkflowMock = jest.spyOn(util, 'getWorkflow');
+    //getWorkflowMock = jest.spyOn(util, 'getWorkflow');
     //getWorkflowMock.mockImplementation(() => {
     //  return Promise.resolve(workflowFile)
     //})

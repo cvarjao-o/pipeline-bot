@@ -1,0 +1,26 @@
+[
+  {
+    "name": "ci",
+    "description": "CI",
+    "on": ["pull_request:opened","pull_request:reopened", "pull_request:synchronize"],
+    "jobs":{
+      "build": {
+        "steps":[
+          {
+            "uses": "docker://registry.access.redhat.com/openshift3/ose-cli:v3.11.129-1",
+            "run": ["sh", "-c", "echo 'Building...'"]
+          }
+        ]
+      },
+      "deploy": {
+        "needs": ["build"],
+        "steps":[
+          {
+            "uses": "docker://registry.access.redhat.com/openshift3/ose-cli:v3.11.129-1",
+            "run": ["sh", "-c", "echo 'Building...'"]
+          }
+        ]
+      }
+    }
+  }
+]

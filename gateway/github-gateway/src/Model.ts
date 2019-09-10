@@ -2,8 +2,11 @@ import { parse } from "querystring";
 
 
 export class Factory {
-  public static asWorkflows(object:Array<object>) : Workflows {
+  public static asWorkflows(items:Array<any>) : Workflows {
     const workflows = new Workflows();
+    for (let workflow of items) {
+      workflows.push(Factory.asWorkflow(workflow));
+    };
     return workflows;
   }
   public static asWorkflow(object:object) : Workflow {
@@ -31,6 +34,7 @@ export class Workflows extends Array<Workflow> implements IWorkflows{
 };
 
 export interface IWorkflow {
+  name: string;
   description: string;
   on: string[];
   /**
@@ -39,7 +43,20 @@ export interface IWorkflow {
   jobs: Jobs;
 }
 
+
+export interface Checkrun {
+  actions: object[];
+  completed_at: string;
+  id: number;
+  head_branch: string;
+  head_sha: string;
+  name: string;
+  status: string;
+  conclusion: string;
+}
+
 export class Workflow implements IWorkflow {
+  name!: string;
   on!: string[];
   description!: string;
   jobs:Jobs = new Jobs();
@@ -83,6 +100,7 @@ export interface IJob extends JobOrStep {
   steps: Steps;
   timeoutInMinutes: number;
   container: any;
+  input ?: Input;
 }
 
 export class Job implements IJob {
@@ -90,9 +108,10 @@ export class Job implements IJob {
   steps: Steps = new Steps();
   timeoutInMinutes!: number;
   container: any;
-  id?: string | undefined;
-  name?: string | undefined;
-  if?: string | undefined;
+  id?: string;
+  name?: string;
+  if?: string;
+  input?: Input;
 
   public static create(object:any):Job {
     const self:any = new Job();
@@ -155,6 +174,8 @@ export class Step implements IStep {
   }
 }
 
-export interface Input extends Job {
-
+export interface Input {
+  id ?: string;
+  label: string;
+  description: string;
 }

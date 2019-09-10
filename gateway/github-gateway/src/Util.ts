@@ -1,7 +1,8 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
-import { Response } from '@octokit/rest';
+import { Response, ChecksGetResponse } from '@octokit/rest';
 import { stringLiteral, isClassPrivateMethod } from '@babel/types';
 import {Toposort} from './Toposort';
+import {Workflows, Workflow, Job, Checkrun, Factory} from './Model';
 
 export function asArray(item:any){
   const array = [];
@@ -21,40 +22,31 @@ export function asArray(item:any){
  * @param context 
  * @returns {string[]} - Returns the actions that needs to run in topological/execution order.
  */
-export function listActions(workflow:any, context:Context) : string[]{
-  const actions : string[] = []
+export function listJobs(workflow:Workflow, context:Context) : Job[]{
   const dag = new Toposort();
-  for (let key of Object.keys(workflow.workflow)) {
-    let flow = workflow.workflow[key];
-    let triggers = asArray(flow.on);
-    for (let trigger of triggers) {
-      if (trigger == context.event || trigger == `${context.event}:${context.payload.action}`){
-        actions.push(...asArray(flow.resolves))
-        for (let action of asArray(flow.resolves)) {
-          dag.add(action, asArray(workflow.actions[action].needs))
-        }
-        break;
-      }
-    }
+  for (let job of workflow.jobs.values()) {
+    dag.add(job.id as string, asArray(job.needs))
   }
-
-  //Iterate over all picked actions and include any dependency (needed)
-  let changed = true
-  while(changed){
-    const original_length = actions.length
-    for (let key of actions) {
-      const item = workflow.actions[key]
-      for (let needed of asArray(item.needs)) {
-        if (actions.indexOf(needed)<0){
-          actions.unshift(needed)
-          dag.add(needed, asArray(workflow.actions[needed].needs))
-        }
-      }
-    }
-    changed = actions.length !== original_length
+  const jobs:Job[]=[];
+  for (let key of dag.sort().reverse()) {
+    jobs.push(workflow.jobs.get(key) as Job)
   }
-  return dag.sort().reverse()
+  return jobs;
 }
+
+export function canJobBeStarted(job:Job, check_run: Checkrun) : boolean {
+  return true;
+}
+export function getJobFromCheckrun(workflows:Workflow[], check_run: Checkrun) : Job|null {
+  for (let workflow of workflows){
+    const job:Job|undefined=workflow.jobs.get(check_run.name) as Job;
+    if (job!=null){
+      return job;
+    }
+  }
+  return null;
+}
+
 export function getChecksForSuite(context: Context, repository:any, check_suite_id:number, started_at:string): Promise<Map<string, any>> {
   return context.github.checks.listForSuite({
     owner: repository.owner.login,
@@ -71,8 +63,16 @@ export function getChecksForSuite(context: Context, repository:any, check_suite_
   })
 }
 
-export function getWorkflow(context: Context, repo:any, head_sha:string): Promise<any> {
-  return require('../test/fixtures/main.workflow.json');
+export function getWorkflows(context: Context, repo:any, head_sha:string): Promise<Workflows> {
+  const json = require('../test/fixtures/main.workflows-v2.json');
+  const allWworkflows = Factory.asWorkflows(json);
+  const filteredworkflows = new Workflows();
+  for (let workflow of allWworkflows){
+    if (workflow.on.includes(context.event) || workflow.on.includes(`${context.event}:${context.payload.action}`)){
+      filteredworkflows.push(workflow);
+    }
+  };
+  return Promise.resolve(filteredworkflows);
 }
 
 /*

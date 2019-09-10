@@ -26,6 +26,12 @@ npm start
 * GITHUB_SHA
 * GITHUB_REF
 
+## Build/Deploy smee
+```
+oc new-build registry.access.redhat.com/ubi7/nodejs-8:1-54~https://github.com/probot/smee.io.git --name=smee
+
+oc new-app smee:latest --name=smee
+```
 
 ## Contributing
 
