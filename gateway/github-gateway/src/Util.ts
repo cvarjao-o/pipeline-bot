@@ -3,6 +3,7 @@ import { Response, ChecksGetResponse } from '@octokit/rest';
 import { stringLiteral, isClassPrivateMethod } from '@babel/types';
 import {Toposort} from './Toposort';
 import {Workflows, Workflow, Job, Checkrun, Factory} from './Model';
+import { fstat, readdir, readFile} from 'fs';
 
 export function asArray(item:any){
   const array = [];
@@ -63,16 +64,64 @@ export function getChecksForSuite(context: Context, repository:any, check_suite_
   })
 }
 
-export function getWorkflows(context: Context, repo:any, head_sha:string): Promise<Workflows> {
-  const json = require('../test/fixtures/main.workflows-v2.json');
-  const allWworkflows = Factory.asWorkflows(json);
-  const filteredworkflows = new Workflows();
-  for (let workflow of allWworkflows){
-    if (workflow.on.includes(context.event) || workflow.on.includes(`${context.event}:${context.payload.action}`)){
-      filteredworkflows.push(workflow);
+export function getAllWorkflows(context: Context, repo:any, head_sha:string): Promise<Workflows> {
+  const gitWorkDirectory = `/tmp/.workflows-bot/${repo.full_name}/${head_sha}/.bcgov/workflows`
+  return new Promise((resolve, reject)=>{
+    readdir(gitWorkDirectory, (err, files)=>{
+      const promises=[];
+      if (err) throw err;
+      for (let file of files){
+        promises.push(new Promise(resolve => {
+          readFile(`${gitWorkDirectory}/${file}`, 'utf8', function (err, data) {
+            if (err) throw err;
+            const obj = JSON.parse(data);
+            resolve(obj);
+          });
+        }))
+      }
+      resolve(promises);
+    });
+  })
+  .then( (promises:any) =>{
+    return Promise.all(promises);
+    /*
+    return promises.reduce((promiseChain:Promise<any>, currentTask:Promise<any>) =>{
+      return promiseChain.then((chainResults:any) => {
+          currentTask.then((currentResult: any) => {
+              return [ ...chainResults, currentResult ];
+          })
+      });
+    }, Promise.resolve([]));
+    */
+  })
+  .then( (items) =>{
+    const items2: any[] = [];
+    for (let item of items){
+      if (Array.isArray(item)){
+        items2.push(...item);
+      }else{
+        items2.push(item);
+      }
     }
-  };
-  return Promise.resolve(filteredworkflows);
+    return items2;
+  })
+  .then( (items) =>{
+    return Factory.asWorkflows(items as any[]);
+  });
+  //const json = require('../test/fixtures/main.workflows-v2.json');
+  //return Promise.resolve(Factory.asWorkflows(json));
+}
+
+export function getWorkflows(context: Context, repo:any, head_sha:string): Promise<Workflows> {
+  return getAllWorkflows(context, repo, head_sha).then((allWworkflows)=>{
+    const filteredworkflows = new Workflows();
+    for (let workflow of allWworkflows){
+      if (workflow.on.includes(context.event) || workflow.on.includes(`${context.event}:${context.payload.action}`)){
+        filteredworkflows.push(workflow);
+      }
+    };
+    return filteredworkflows
+  });
 }
 
 /*

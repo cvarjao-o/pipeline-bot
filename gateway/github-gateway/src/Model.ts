@@ -112,6 +112,7 @@ export class Job implements IJob {
   name?: string;
   if?: string;
   input?: Input;
+  namespace?: string;
 
   public static create(object:any):Job {
     const self:any = new Job();
@@ -161,6 +162,7 @@ export class Step implements IStep {
   id?: string | undefined;
   name?: string | undefined;
   if?: string | undefined;
+  namespace?: string;
 
   public fill(object:any): this {
     const self:any = this;
